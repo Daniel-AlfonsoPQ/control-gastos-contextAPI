@@ -5,6 +5,7 @@ import 'react-calendar/dist/Calendar.css';
 import 'react-date-picker/dist/DatePicker.css';
 import { DraftExpense, Value } from "../types";
 import ErrorMessage from "./ErrorMessage";
+import { useBudget } from "../hooks/useBudget";
 
 
 
@@ -17,6 +18,7 @@ export default function ExpenseForm() {
     })
 
     const [error, setError] = useState<string | null>(null);
+    const { dispatch } = useBudget();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -48,7 +50,12 @@ export default function ExpenseForm() {
             setError('Por favor añade una fecha valida');
             return;
         }
-        console.log('Gasto registrado:', expense);
+        dispatch({
+            type: 'add-expense',
+            payload: {
+                expense
+            }
+        })
         setError(null);
         // Reiniciar el formulario
         setExpense({
@@ -90,7 +97,7 @@ export default function ExpenseForm() {
                 htmlFor="amount"
                 className="text-xl"
             >
-                Cantidad:
+                Valor:
             </label>
             <input 
                 type="number"
