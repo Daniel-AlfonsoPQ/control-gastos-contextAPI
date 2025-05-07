@@ -1,9 +1,41 @@
+import { useMemo } from "react"
+import BudgetForm from "./components/BudgetForm"
+import { useBudget } from "./hooks/useBudget"
+import BudgetTracker from "./components/BudgetTracker"
+import ExpenseModal from "./components/ExpenseModal"
 
+
+// Este proyecto usa Tailwind CSS para el diseño
+// y React para la lógica de la aplicación.
+
+// useState y useMemo para manejar el estado y la lógica de la aplicación.
+
+// El componente BudgetForm es un formulario que permite al usuario definir su presupuesto.
+
+// ContextAPI para manejar el estado global de la aplicación.
 function App() {
+  const { state } = useBudget()
 
+  const isValidBudget = useMemo(() => state.budget > 0, [state.budget])
   return (
     <>
-      <h1>Control de Gastos</h1>
+      <header className="bg-blue-600 py-8 max-h-72">
+        <h1 className="uppercase text-center font-black text-4xl text-white">
+          Planificador de Gastos
+        </h1>
+      </header>
+
+      <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg mt-10 p-10">
+        {isValidBudget ? <BudgetTracker/> : <BudgetForm />}
+      </div>
+
+      {isValidBudget && (
+
+        <main className="max-w-3xl mx-auto py-10">
+          <ExpenseModal />
+
+        </main>
+      )}
     </>
   )
 }
