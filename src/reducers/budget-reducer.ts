@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import { DraftExpense, Expense } from "../types"
+import { Category, DraftExpense, Expense } from "../types"
 
 export type BudgetActions =
     {type: 'add-budget', payload: {budget: number} } |
@@ -8,7 +8,9 @@ export type BudgetActions =
     {type: 'add-expense', payload: {expense: DraftExpense}} |
     {type: 'delete-expense', payload: {id: Expense['id']}} |
     {type: 'get-expense-by-id', payload: {id: Expense['id']}} |
-    {type: 'edit-expense', payload: { expense: Expense}}
+    {type: 'edit-expense', payload: { expense: Expense}} |
+    {type: 'restart'} |
+    {type: 'add-filter-category', payload: {id: Category['id']}} 
 
 
 export type BudgetState = {
@@ -16,13 +18,25 @@ export type BudgetState = {
     modal: boolean
     expenses: Expense[]
     editingId: Expense['id']
+    currentCategory: Category['id']
+}
+
+const initialBudget = () : number => {
+    const localStorageBudget = localStorage.getItem('budget')
+    return localStorageBudget ? +localStorageBudget : 0
+}
+
+const initialExpenses = () : Expense[] => {
+    const localStorageExpenses = localStorage.getItem('expenses')
+    return localStorageExpenses ? JSON.parse(localStorageExpenses) : []
 }
 
 export const initialState : BudgetState = {
-    budget: 0,
+    budget: initialBudget(),
     modal: false, 
-    expenses: [],
-    editingId: ''
+    expenses: initialExpenses(),
+    editingId: '',
+    currentCategory: ''
 }
 
 const createExpense= (DraftExpense: DraftExpense) : Expense => {
@@ -89,6 +103,21 @@ export const budgetReducer = (
             expenses: state.expenses.map(expense => expense.id === action.payload.expense.id ? action.payload.expense : expense),
             modal: false,
             editingId: ''
+        }
+    }
+
+    if (action.type === 'restart') {
+        return {
+            ...state,
+            budget: 0,
+            expenses: []
+        }
+    }
+
+    if (action.type === 'add-filter-category') {
+        return {
+            ...state,
+            currentCategory: action.payload.id
         }
     }
 

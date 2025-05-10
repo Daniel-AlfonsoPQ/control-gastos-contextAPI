@@ -18,13 +18,15 @@ export default function ExpenseForm() {
     })
 
     const [error, setError] = useState<string | null>(null);
-    const { dispatch, state } = useBudget();
+    const [previousAmount, setPreviousAmount] = useState(0)
+    const { dispatch, state, remainingBudget } = useBudget();
 
     useEffect(() => {
         if (state.editingId) {
             const expenseToEdit = state.expenses.filter(exp => exp.id === state.editingId)[0];
             if (expenseToEdit) {
                 setExpense(expenseToEdit)
+                setPreviousAmount(expenseToEdit.amount)
             }
         }
     }, [state.editingId])
@@ -51,6 +53,13 @@ export default function ExpenseForm() {
             setError('Por favor completa todos los campos');
             return;
         }
+
+        if ((expense.amount - previousAmount) > remainingBudget) {
+            setError('Ese gasto excede tu presupuesto disponible. Por favor añade un gasto menor o igual a tu presupuesto disponible.');
+            return;
+        }
+
+
         if (expense.amount <= 0) {
             setError('Por favor añade una cantidad valida');
             return;
@@ -79,6 +88,7 @@ export default function ExpenseForm() {
             category: '',
             date: new Date()
         })
+        setPreviousAmount(0);
     }
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
